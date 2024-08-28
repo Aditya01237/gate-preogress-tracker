@@ -1,12 +1,4 @@
 export const topics = {
-    "Fundamental Course": [
-      "Sequence",
-      "Series",
-      "Arithmetic",
-      "Proof Techniques",
-      "Modular Arithmetic",
-      "Logarithm",
-    ],
     "Engineering Mathematics": [
       "Conditional Probability",
       "Probability Distributions",
