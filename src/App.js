@@ -2,13 +2,41 @@ import React, { useState, useEffect } from 'react';
 import { topics } from './data/topics';
 
 const App = () => {
-  const [progress, setProgress] = useState(() => {
-    const savedProgress = localStorage.getItem('progress');
-    return savedProgress ? JSON.parse(savedProgress) : {};
-  });
+  const [progress, setProgress] = useState({});
 
   useEffect(() => {
-    localStorage.setItem('progress', JSON.stringify(progress));
+    const openRequest = indexedDB.open("GATEProgressDB", 1);
+
+    openRequest.onupgradeneeded = function () {
+      const db = openRequest.result;
+      if (!db.objectStoreNames.contains("progressStore")) {
+        db.createObjectStore("progressStore", { keyPath: "id" });
+      }
+    };
+
+    openRequest.onsuccess = function () {
+      const db = openRequest.result;
+      const transaction = db.transaction("progressStore", "readonly");
+      const progressStore = transaction.objectStore("progressStore");
+      const getRequest = progressStore.get(1);
+
+      getRequest.onsuccess = function () {
+        if (getRequest.result) {
+          setProgress(getRequest.result.data);
+        }
+      };
+    };
+  }, []);
+
+  useEffect(() => {
+    const openRequest = indexedDB.open("GATEProgressDB", 1);
+
+    openRequest.onsuccess = function () {
+      const db = openRequest.result;
+      const transaction = db.transaction("progressStore", "readwrite");
+      const progressStore = transaction.objectStore("progressStore");
+      progressStore.put({ id: 1, data: progress });
+    };
   }, [progress]);
 
   const handleCheck = (category, topic, milestone) => {
